@@ -1,181 +1,130 @@
-import { Outlet, Link } from "react-router";
-import { CiHeart,  CiFacebook, CiInstagram, } from "react-icons/ci";
-import { RiTwitterXFill } from "react-icons/ri";
+import { useEffect, useState } from "react";
+import { Outlet } from "react-router";
+import { motion, AnimatePresence } from "framer-motion";
+import { FiMenu, FiX } from "react-icons/fi";
 
+export default function MainLayout() {
+  const [mobileOpen, setMobileOpen] = useState(false);
+  const [showNav, setShowNav] = useState(true);
 
-export default function Layout() {
+  let lastScrollY = 0;
+
+  useEffect(() => {
+    const handleScroll = () => {
+      const currentScroll = window.scrollY;
+
+      if (currentScroll > lastScrollY && currentScroll > 80) {
+        setShowNav(false); // scroll down -> hide
+      } else {
+        setShowNav(true); // scroll up -> show
+      }
+
+      lastScrollY = currentScroll;
+    };
+
+    window.addEventListener("scroll", handleScroll);
+
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
+
   return (
-    <div className="relative min-h-screen text-white">
-      {/* Navbar */}
-      <header className="sticky top-0 z-50 border-b border-white/10 bg-[#050816]/60 backdrop-blur-2xl">
-        <div className="mx-auto flex max-w-7xl items-center justify-between px-6 py-4">
-          {/* Logo */}
-          <Link
-            to="/"
-            className="flex items-center gap-3"
+    <div className="flex min-h-screen flex-col bg-[#050816] text-white">
+      {/* NAVBAR */}
+      <AnimatePresence>
+        {showNav && (
+          <motion.header
+            initial={{ y: -80, opacity: 0 }}
+            animate={{ y: 0, opacity: 1 }}
+            exit={{ y: -80, opacity: 0 }}
+            className="fixed left-0 top-0 z-50 w-full border-b border-white/10 bg-[#050816]/70 backdrop-blur-xl"
           >
-            <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-linear-to-r from-pink-500/20 to-purple-500/20">
-              <CiHeart className="h-6 w-6 text-pink-200" />
-            </div>
-
-            <div>
-              <h1 className="text-xl font-bold tracking-wide">
-                Mother-Care
-              </h1>
-
-              <p className="text-xs text-pink-100/60">
-                Safari ya Mama, Tukiwa Pamoja
-              </p>
-            </div>
-          </Link>
-
-          {/* Navigation */}
-          <nav className="hidden items-center gap-8 md:flex">
-            <Link
-              to="/"
-              className="text-sm text-pink-100/70 transition hover:text-pink-200"
-            >
-              Home
-            </Link>
-
-            <Link
-              to="/features"
-              className="text-sm text-pink-100/70 transition hover:text-pink-200"
-            >
-              Features
-            </Link>
-
-            <Link
-              to="/about"
-              className="text-sm text-pink-100/70 transition hover:text-pink-200"
-            >
-              About
-            </Link>
-
-            <Link
-              to="/contact"
-              className="text-sm text-pink-100/70 transition hover:text-pink-200"
-            >
-              Contact
-            </Link>
-          </nav>
-
-          {/* CTA */}
-          <button className="rounded-2xl bg-linear-to-r from-pink-500 to-purple-500 px-5 py-2.5 text-sm font-medium shadow-lg shadow-pink-500/20 transition hover:scale-105">
-            Join the waitList
-          </button>
-        </div>
-      </header>
-
-      {/* Page Content */}
-      <main className="relative z-10">
-        <Outlet />
-      </main>
-
-      {/* Footer */}
-      <footer className="relative z-10 mt-20 border-t border-white/10 bg-[#050816]/40 backdrop-blur-2xl">
-        <div className="mx-auto grid max-w-7xl gap-12 px-6 py-14 md:grid-cols-4">
-          {/* Brand */}
-          <div>
-            <div className="flex items-center gap-3">
-              <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-linear-to-r from-pink-500/20 to-purple-500/20">
-                <CiHeart className="h-6 w-6 text-pink-200" />
-              </div>
-
+            <div className="mx-auto flex max-w-7xl items-center justify-between px-6 py-4">
+              {/* Logo */}
               <div>
-                <h2 className="text-xl font-bold">
+                <h1 className="text-xl font-bold text-pink-200">
                   Mother-Care
-                </h2>
+                </h1>
 
-                <p className="text-xs text-pink-100/60">
+                {/* FORCED ONE LINE */}
+                <p className="text-xs text-pink-100/70 whitespace-nowrap">
                   Safari ya Mama, Tukiwa Pamoja
                 </p>
               </div>
+
+              {/* Desktop Menu */}
+              <nav className="hidden items-center gap-8 md:flex text-sm text-white/80">
+                <a className="hover:text-pink-200" href="#">Home</a>
+                <a className="hover:text-pink-200" href="#">Features</a>
+                <a className="hover:text-pink-200" href="#">About</a>
+                <a className="hover:text-pink-200" href="#">Contact</a>
+              </nav>
+
+              {/* Mobile Hamburger */}
+              <button
+                onClick={() => setMobileOpen(!mobileOpen)}
+                className="md:hidden text-2xl"
+              >
+                {mobileOpen ? <FiX /> : <FiMenu />}
+              </button>
             </div>
 
-            <p className="mt-5 text-sm leading-relaxed text-pink-100/60">
-              Supporting mothers from the first heartbeat of
-              pregnancy to the baby’s first birthday.
+            {/* MOBILE MENU */}
+            <AnimatePresence>
+              {mobileOpen && (
+                <motion.div
+                  initial={{ height: 0, opacity: 0 }}
+                  animate={{ height: "auto", opacity: 1 }}
+                  exit={{ height: 0, opacity: 0 }}
+                  className="md:hidden overflow-hidden border-t border-white/10 bg-[#050816]/95"
+                >
+                  <div className="flex flex-col gap-4 px-6 py-4 text-white/80">
+                    <a onClick={() => setMobileOpen(false)} href="/">Home</a>
+                    <a onClick={() => setMobileOpen(false)} href="/features">Features</a>
+                    <a onClick={() => setMobileOpen(false)} href="/about">About</a>
+                    <a onClick={() => setMobileOpen(false)} href="/contact">Contact</a>
+                  </div>
+                </motion.div>
+              )}
+            </AnimatePresence>
+          </motion.header>
+        )}
+      </AnimatePresence>
+
+      {/* PAGE CONTENT */}
+      <main className="flex-1 pt-20">
+        <Outlet />
+      </main>
+
+      {/* FOOTER */}
+      <footer className="border-t border-white/10 bg-[#050816]">
+        <div className="mx-auto grid max-w-7xl gap-10 px-6 py-12 md:grid-cols-3">
+          
+          <div>
+            <h2 className="text-lg font-bold text-pink-200">
+              Mother-Care
+            </h2>
+            <p className="mt-2 text-sm text-white/60">
+              Supporting mothers from pregnancy to baby’s first year with care and guidance.
             </p>
           </div>
 
-          {/* Quick Links */}
-          <div>
-            <h3 className="text-lg font-semibold">
-              Quick Links
-            </h3>
-
-            <div className="mt-5 flex flex-col gap-3 text-sm text-pink-100/70">
-              <Link
-                to="/"
-                className="transition hover:text-pink-200"
-              >
-                Home
-              </Link>
-
-              <Link
-                to="/features"
-                className="transition hover:text-pink-200"
-              >
-                Features
-              </Link>
-
-              <Link
-                to="/about"
-                className="transition hover:text-pink-200"
-              >
-                About
-              </Link>
-
-              <Link
-                to="/contact"
-                className="transition hover:text-pink-200"
-              >
-                Contact
-              </Link>
-            </div>
+          <div className="text-sm text-white/70">
+            <h3 className="mb-3 font-semibold text-white">Quick Links</h3>
+            <p>Home</p>
+            <p>Features</p>
+            <p>About</p>
+            <p>Contact</p>
           </div>
 
-          {/* Features */}
-          <div>
-            <h3 className="text-lg font-semibold">
-              Services
-            </h3>
-
-            <div className="mt-5 flex flex-col gap-3 text-sm text-pink-100/70">
-              <p>Pregnancy Tracking</p>
-              <p>Clinic Reminders</p>
-              <p>Baby Care Monitoring</p>
-              <p>Vaccination Alerts</p>
-            </div>
-          </div>
-
-          {/* Socials */}
-          <div>
-            <h3 className="text-lg font-semibold">
-              Connect
-            </h3>
-
-            <div className="mt-5 flex items-center gap-4">
-              <button className="rounded-2xl border border-white/10 bg-white/5 p-3 transition hover:bg-white/10">
-                <CiFacebook className="h-5 w-5 text-pink-200" />
-              </button>
-
-              <button className="rounded-2xl border border-white/10 bg-white/5 p-3 transition hover:bg-white/10">
-                <CiInstagram className="h-5 w-5 text-pink-200" />
-              </button>
-
-              <button className="rounded-2xl border border-white/10 bg-white/5 p-3 transition hover:bg-white/10">
-                <RiTwitterXFill className="h-5 w-5 text-pink-200" />
-              </button>
-            </div>
+          <div className="text-sm text-white/70">
+            <h3 className="mb-3 font-semibold text-white">Contact</h3>
+            <p>Email: support@mothercare.com</p>
+            <p>Phone: +254 XXX XXX XXX</p>
           </div>
         </div>
 
-        {/* Bottom */}
-        <div className="border-t border-white/10 py-5 text-center text-sm text-pink-100/50">
-          © {new Date().getFullYear()} Mother-Care.
-          All rights reserved.
+        <div className="border-t border-white/10 py-4 text-center text-xs text-white/50">
+          © {new Date().getFullYear()} Mother-Care. All rights reserved.
         </div>
       </footer>
     </div>
